@@ -2,7 +2,7 @@ const { DynamoDBClient, UpdateItemCommand } = require('@aws-sdk/client-dynamodb'
 
 const dynamoDbClient = new DynamoDBClient({ region: process.env.REGION });
 
-exports.updateCategoryImage = async (event) => {
+exports.updateCategoryData = async (event) => {
 	try {
 		const tableName = process.env.CATEGORY_TABLE;
 

@@ -9,7 +9,7 @@ provider:
   region: ap-southeast-1
   environment:
     CATEGORY_TABLE: Categories
-    CATEGORY_IMAGES_BUCKET: category-images-bucket-sls
+    CATEGORY_IMAGES_BUCKET: category-bucket-sls
     REGION: ap-southeast-1
   iamRoleStatements:
     - Effect: Allow
@@ -17,15 +17,15 @@ provider:
         - s3:PutObject
         - dynamodb:PutItem
       Resource:
-        - arn:aws:s3:::category-images-bucket-sls/*
-        - !Sub arn:aws:dynamodb:ap-southeast-1:${AWS::AccountId}:table/Categories
+        - !Sub arn:aws:s3:::${CategoryImagesBucket}/*
+        - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Categories
 
 resources:
   Resources:
     CategoryImagesBucket:
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: category-images-bucket-sls
+        BucketName: category-bucket-sls
         PublicAccessBlockConfiguration:
           BlockPublicAcls: false
           IgnorePublicAcls: false
@@ -49,7 +49,7 @@ resources:
             - Effect: Allow
               Principal: '*'
               Action: s3:PutObject
-              Resource: !Sub arn:aws:s3:::category-images-bucket-sls/*
+              Resource: !Sub arn:aws:s3:::${CategoryImagesBucket}/*
 
     CategoryTable:
       Type: AWS::DynamoDB::Table
@@ -57,10 +57,10 @@ resources:
         TableName: Categories
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
-          - AttributeName: categoryName
+          - AttributeName: fileName
             AttributeType: S
         KeySchema:
-          - AttributeName: categoryName
+          - AttributeName: fileName
             KeyType: HASH
 
 functions:
@@ -70,10 +70,10 @@ functions:
       - httpApi:
           path: /upload-url
           method: post
-  updateCategory:
-    handler: handlers/updateCategoryImage.updateCategoryImage
+  updateCategoryData:
+    handler: handlers/updateCategoryData.updateCategoryData
     events:
       - s3:
-          bucket: category-images-bucket-sls
+          bucket: !Ref CategoryImagesBucket
           event: s3:ObjectCreated:Put
           existing: true # This allows the function to be triggered by an existing object in the bucket
