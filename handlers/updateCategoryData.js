@@ -5,25 +5,22 @@ const dynamoDbClient = new DynamoDBClient({ region: process.env.REGION });
 exports.updateCategoryData = async (event) => {
 	try {
 		const tableName = process.env.CATEGORY_TABLE;
+		const bucketName = process.env.CATEGORY_IMAGES_BUCKET;
 
 		// Extract file details from s3 event notification
 		const record = event.Records[0];
 
-		const bucketName = record.s3.bucket.name;
-
 		// Extract the file name from the S3 event record
 		const fileName = record.s3.object.key;
 
-		const fileUrl = `https://${bucketName}.s3.amazonaws.com/${fileName}`;
+		const imageUrl = `https://${bucketName}.s3.amazonaws.com/${fileName}`;
 
 		const updateItemCommand = new UpdateItemCommand({
 			TableName: tableName,
-			Key: {
-				fileName: { S: fileName }, // Assuming category name is part of the file path
-			},
-			UpdateExpression: 'SET imageUrl = :imageUrl',
+			Key: { fileName: { S: fileName } },
+			UpdateExpression: 'SET imageUrl = :imageUrl', //update only the image url field
 			ExpressionAttributeValues: {
-				':imageUrl': { S: fileUrl },
+				':imageUrl': { S: imageUrl }, //Assign the new image url
 			},
 		});
 

@@ -16,9 +16,10 @@ provider:
       Action:
         - s3:PutObject
         - dynamodb:PutItem
+        - dynamodb:UpdateItem
       Resource:
-        - !Sub arn:aws:s3:::${CategoryImagesBucket}/*
-        - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Categories
+        - !Sub arn:aws:s3:::${self:provider.environment.CATEGORY_IMAGES_BUCKET}/*
+        - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${self:provider.environment.CATEGORY_TABLE}
 
 resources:
   Resources:
@@ -48,8 +49,14 @@ resources:
           Statement:
             - Effect: Allow
               Principal: '*'
-              Action: s3:PutObject
-              Resource: !Sub arn:aws:s3:::${CategoryImagesBucket}/*
+              Action:
+                - s3:PutObject
+                - s3:GetObject
+              # This is join method to concatenate the bucket ARN with '/*' to allow access to all objects in the bucket
+              # There could be multiple ways to write !Join method some of them are:
+              # 1. !Join [ '', [!GetAtt CategoryImagesBucket.Arn, '/*'] ]
+              # 2. !Join [ '', ['arn:aws:s3:::', !Ref CategoryImagesBucket, '/*'] ]
+              Resource: !Join ['', [!GetAtt CategoryImagesBucket.Arn, '/*']]
 
     CategoryTable:
       Type: AWS::DynamoDB::Table
