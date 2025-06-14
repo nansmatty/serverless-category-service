@@ -5,7 +5,31 @@ service: categoryService
 
 provider:
   name: aws
-  runtime: nodejs20.x
+  runtime: nodejs22.x
+  region: ap-southeast-1
+  environment:
+    CATEGORY_TABLE: Categories
+    CATEGORY_IMAGES_BUCKET: category-images-bucket-sls
+    REGION: ap-southeast-1
+
+resources:
+  Resources:
+    CategoryImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: category-images-bucket-sls
+
+    CategoryTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Categories
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: categoryName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: categoryName
+            KeyType: HASH
 
 functions:
   hello:
