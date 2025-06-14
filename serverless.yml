@@ -11,6 +11,7 @@ provider:
     CATEGORY_TABLE: Categories
     CATEGORY_IMAGES_BUCKET: category-bucket-sls
     REGION: ap-southeast-1
+    SNS_TOPIC_ARN: !Ref CategoryCleanupTopic
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -19,9 +20,11 @@ provider:
         - dynamodb:UpdateItem
         - dynamodb:Scan
         - dynamodb:DeleteItem
+        - sns:Publish
       Resource:
         - !Sub arn:aws:s3:::${self:provider.environment.CATEGORY_IMAGES_BUCKET}/*
         - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${self:provider.environment.CATEGORY_TABLE}
+        - !Ref CategoryCleanupTopic
 
 resources:
   Resources:
@@ -71,6 +74,18 @@ resources:
         KeySchema:
           - AttributeName: fileName
             KeyType: HASH
+
+    CategoryCleanupTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: CategoryCleanupTopic
+
+    CategoryCleanupSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref CategoryCleanupTopic
+        Protocol: email
+        Endpoint: narayanmaitysp@gmail.com
 
 functions:
   getUploadUrl:
