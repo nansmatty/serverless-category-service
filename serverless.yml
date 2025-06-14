@@ -70,3 +70,10 @@ functions:
       - httpApi:
           path: /upload-url
           method: post
+  updateCategory:
+    handler: handlers/updateCategoryImage.updateCategoryImage
+    events:
+      - s3:
+          bucket: category-images-bucket-sls
+          event: s3:ObjectCreated:Put
+          existing: true # This allows the function to be triggered by an existing object in the bucket
