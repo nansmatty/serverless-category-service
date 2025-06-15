@@ -88,6 +88,12 @@ resources:
         Endpoint: narayanmaitysp@gmail.com
 
 functions:
+  getAllCategories:
+    handler: handlers/getAllCategories.getAllCategories
+    events:
+      - httpApi:
+          path: /categories
+          method: get
   getUploadUrl:
     handler: handlers/getUploadUrl.getUploadUrl
     events:
