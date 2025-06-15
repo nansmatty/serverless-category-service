@@ -105,5 +105,5 @@ functions:
     handler: eventBrigdeHandlers/cleanupCategories.cleanupCategories
     events: # This function will be triggered in every 2 minutes and will delete all categories that are older 1 hour
       - schedule:
-          rate: rate(2 minutes)
+          rate: rate(1 hour)
           enabled: true # This enables the scheduled event
